@@ -13,7 +13,7 @@ st.title("📊 Stock Screener - Volume & OI Spurt Detector")
 def fetch_oi_buildup():
     url = "https://www.moneycontrol.com/stocks/marketstats/futures/oi-spurts/fno/"
     try:
-        tables = pd.read_html(url)
+        tables = pd.read_html(url, flavor='bs4')
         df = tables[0]
         df.columns = ["Stock", "Price", "Chg %", "OI", "OI Chg %", "Vol", "Vol Chg %"]
         return df
