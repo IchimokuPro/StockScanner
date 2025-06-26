@@ -19,8 +19,17 @@ def fetch_oi_buildup():
         tables = pd.read_html(str(soup))
         if tables:
             df = tables[0]
-            df.columns = ["Stock", "Price", "Chg %", "OI", "OI Chg %", "Vol", "Vol Chg %"]
-            return df
+            expected_cols = ["Stock", "Price", "Chg %", "OI"]  # Expect 4 columns
+            if len(df.columns) == len(expected_cols):
+                df.columns = expected_cols
+                return df
+            elif len(df.columns) >= 7:
+                df.columns = ["Stock", "Price", "Chg %", "OI", "OI Chg %", "Vol", "Vol Chg %"]
+                return df
+            else:
+                st.warning(f"⚠️ Column mismatch! Expected 4 or 7 columns but got {len(df.columns)}")
+                st.write("Raw columns:", df.columns.tolist())
+                return pd.DataFrame()
         else:
             raise ValueError("No tables found on OI page")
     except Exception as e:
