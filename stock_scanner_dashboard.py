@@ -44,16 +44,24 @@ def fetch_unusual_volume():
         headers = {"User-Agent": "Mozilla/5.0"}  # avoid bot detection
         page = requests.get(url, headers=headers, timeout=10)
         soup = BeautifulSoup(page.content, "html.parser")
-        table_rows = soup.select(".tv-data-table__tbody tr")
+        table = soup.find("table")
+        if not table:
+            raise ValueError("No table found on TradingView page")
+        rows = table.find_all("tr")
         data = []
-        for row in table_rows:
+        for row in rows[1:]:
             cols = row.find_all("td")
             if len(cols) >= 6:
                 stock = cols[0].text.strip()
                 price = cols[1].text.strip()
                 chg = cols[2].text.strip()
-                vol_rel = cols[5].text.strip()
-                data.append({"Stock": stock, "Price": price, "Change": chg, "Rel Volume": vol_rel})
+                vol = cols[5].text.strip()
+                data.append({
+                    "Stock": stock,
+                    "Price": price,
+                    "Change": chg,
+                    "Rel Volume": vol
+                })
         return pd.DataFrame(data)
     except Exception as e:
         st.error(f"⚠️ Error fetching volume data: {e}")
